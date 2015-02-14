@@ -62,6 +62,7 @@ public class HibernateInitializer implements Startable {
     public static final String DB_DB2 = "db2";
     public static final String DB_TEIID = "teiid";
     public static final String DB_SYBASE = "sybase";
+    public static final String DB_FIREBIRD = "firebird";
 
     @Inject
     protected HibernateSessionFactoryProvider hibernateSessionFactoryProvider;
@@ -79,6 +80,7 @@ public class HibernateInitializer implements Startable {
                     DB_SQLSERVER + "=org.hibernate.dialect.SQLServerDialect," +
                     DB_DB2 + "=org.hibernate.dialect.DB2Dialect," +
                     DB_TEIID + "=org.teiid.dialect.TeiidDialect," +
+                    DB_FIREBIRD + "=org.hibernate.dialect.FirebirdDialect," +
                     DB_SYBASE + "=org.hibernate.dialect.SybaseASE157Dialect")
     protected Map<String,String> supportedDialects;
 
@@ -202,6 +204,10 @@ public class HibernateInitializer implements Startable {
         return isDatabase(DB_SYBASE);
     }
 
+    public boolean isFirebirdDatabase() {
+        return isDatabase(DB_FIREBIRD);
+    }
+
     protected boolean isDatabase(String dbId) {
         return dbId.equals(databaseName);
     }
@@ -242,6 +248,7 @@ public class HibernateInitializer implements Startable {
             if (dbProductName.contains("db2")) return DB_DB2;
             if (dbProductName.contains("teiid")) return DB_TEIID;
             if (dbProductName.contains("ase") || dbProductName.contains("adaptive")) return DB_SYBASE;
+            if (dbProductName.contains("firebird")) return DB_FIREBIRD;
         } finally {
             if (connection != null) {
                 connection.close();
