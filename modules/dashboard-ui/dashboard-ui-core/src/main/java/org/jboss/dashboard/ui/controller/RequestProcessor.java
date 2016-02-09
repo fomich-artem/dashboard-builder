@@ -18,6 +18,7 @@ package org.jboss.dashboard.ui.controller;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +37,7 @@ import org.jboss.dashboard.ui.controller.requestChain.NavigationCookieProcessor;
 import org.jboss.dashboard.ui.controller.requestChain.RequestChainProcessor;
 import org.jboss.dashboard.ui.controller.requestChain.ResponseHeadersProcessor;
 import org.jboss.dashboard.ui.controller.requestChain.SessionInitializer;
+import org.jboss.dashboard.ui.controller.requestChain.URLBasedAuthProcessor;
 
 @ApplicationScoped
 public class RequestProcessor {
@@ -48,6 +50,7 @@ public class RequestProcessor {
 
     @PostConstruct
     protected void initChain() {
+    	processorChain.add(CDIBeanLocator.getBeanByType(URLBasedAuthProcessor.class));
         processorChain.add(CDIBeanLocator.getBeanByType(CSRFTokenProcessor.class));
         processorChain.add(CDIBeanLocator.getBeanByType(HttpSSOProcessor.class));
         processorChain.add(CDIBeanLocator.getBeanByType(ModalDialogStatusSaver.class));
