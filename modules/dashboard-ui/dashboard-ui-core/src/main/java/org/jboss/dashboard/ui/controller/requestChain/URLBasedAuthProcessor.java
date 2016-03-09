@@ -1,9 +1,13 @@
 package org.jboss.dashboard.ui.controller.requestChain;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jboss.dashboard.users.Role;
 import org.jboss.dashboard.users.UserStatus;
 
 /**
@@ -13,9 +17,12 @@ import org.jboss.dashboard.users.UserStatus;
  *
  */
 @ApplicationScoped
-public class URLBasedAuthProcessor extends AbstractChainProcessor {
+public class URLBasedAuthProcessor extends HttpSSOProcessor {
 
 	protected static final String DEFAULT_PASSWORD = System.getProperty("org.jboss.dashboard.ui.controller.requestChain.URLBasedAuthProcessor.DEFAULT_PASSWORD", "1");
+
+	/*@Inject
+	HttpSSOProcessor ssoProcessor;*/
 
 	@Override
 	public boolean processRequest() throws Exception {
@@ -25,15 +32,36 @@ public class URLBasedAuthProcessor extends AbstractChainProcessor {
         if (StringUtils.isNotBlank(username)) {
         	if (!us.isAnonymous()) {
         		if (!username.equals(us.getUserLogin()))
-        			request.logout();
+        			doLogout(request, us);
         		else
         			return true;
         	}
-    		request.login(username, DEFAULT_PASSWORD);
-    		if (request.isUserInRole("root"))
-    			request.logout();
+    		//request.login(username, DEFAULT_PASSWORD);
+    		//ssoProcessor.processRequest();
+        	doLogin(username, request, us);
         }
 		return true;
+	}
+
+	protected void doLogin(String username, HttpServletRequest request, UserStatus us) throws Exception {
+		request.login(username, DEFAULT_PASSWORD);
+		if (request.isUserInRole("admin")) {
+			//us.initSessionAsRoot();
+			doLogout(request, us);
+		} else {
+			Set<String> roleIds = new HashSet<String>();
+			Set<Role> roles = /*ssoProcessor.*/getRolesManager().getAllRoles();
+			for (Role role : roles) {
+				String roleId = role.getName();
+				if (request.isUserInRole(roleId)) roleIds.add(roleId);
+			}
+			us.initSession(username, roleIds);
+		}
+	}
+
+	protected void doLogout(HttpServletRequest request, UserStatus us) throws Exception {
+		request.logout();
+		us.closeSession();
 	}
 
 }
