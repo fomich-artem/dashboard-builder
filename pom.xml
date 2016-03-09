@@ -305,8 +305,8 @@
 				<maxmem>512m</maxmem>
 				<showDeprecation>true</showDeprecation>
 				<showWarnings>true</showWarnings>
-				<source>1.7</source>
-				<target>1.7</target>
+				<source>1.6</source>
+				<target>1.6</target>
 				<compilerArgs>
 					<arg>-Xlint:unchecked</arg>
 				</compilerArgs>
